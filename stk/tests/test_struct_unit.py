@@ -5,7 +5,7 @@ from scipy.spatial.distance import euclidean
 import rdkit.Chem as chem
 
 from ..molecular import StructUnit, Molecule
-from ..convenience_tools import normalize_vector
+from ..utilities import normalize_vector
 
 data_dir = join('data', 'struct_unit', 'amine.mol')
 mol = StructUnit(data_dir)

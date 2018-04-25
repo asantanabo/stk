@@ -1,5 +1,5 @@
 from ..ga import GAInput
-from ..convenience_tools import FunctionData
+from ..utilities import FunctionData
 from ..molecular import FourPlusSix
 from os.path import join
 

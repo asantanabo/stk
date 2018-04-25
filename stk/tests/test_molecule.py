@@ -6,7 +6,7 @@ from scipy.spatial.distance import euclidean
 
 
 from ..molecular import Molecule
-from ..convenience_tools import periodic_table
+from ..utilities import periodic_table
 
 
 # Make a loader for a test Molecule object.

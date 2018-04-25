@@ -1,6 +1,6 @@
 from os.path import join
 from ..ga import Population
-from ..convenience_tools import FunctionData
+from ..utilities import FunctionData
 from ..molecular import Molecule
 import numpy as np
 
