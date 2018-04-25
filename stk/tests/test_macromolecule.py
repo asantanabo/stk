@@ -2,7 +2,7 @@ from types import SimpleNamespace
 from os.path import join
 from ..molecular import (MacroMolecule, Molecule, FourPlusSix,
                          StructUnit, StructUnit2, StructUnit3)
-from ..ga import Population
+from ..population import Population
 
 pop = Population.load(join('data', 'macromolecule', 'mm.json'),
                       Molecule.from_dict)

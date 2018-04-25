@@ -1,5 +1,5 @@
 from os.path import join
-from ..ga import Population
+from ..population import Population
 from ..utilities import FunctionData
 from ..molecular import Molecule
 import numpy as np
