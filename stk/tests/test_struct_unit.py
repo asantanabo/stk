@@ -8,7 +8,7 @@ from ..utilities import normalize_vector
 if not os.path.exists('struct_unit_tests_output'):
     os.mkdir('struct_unit_tests_output')
 
-mol = StructUnit.smarts_init('NC1CC(N)CC(N)C1', 'amine')
+mol = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
 conf = mol.mol.GetConformer()
 
 
@@ -95,14 +95,14 @@ def test_json_init():
 
 
 def test_caching():
-    mol2 = StructUnit.smarts_init('NC1CC(N)CC(N)C1', 'amine')
+    mol2 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
     assert mol is mol2
 
-    mol3 = StructUnit.smarts_init('NC1CC(N)CC(N)C1', 'aldehyde')
+    mol3 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'aldehyde')
     assert mol3 is not mol
 
     CACHE_SETTINGS['ON'] = False
-    mol4 = StructUnit.smarts_init('NC1CC(N)CC(N)C1', 'amine')
+    mol4 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
     CACHE_SETTINGS['ON'] = True
 
     assert mol is not mol4
@@ -115,7 +115,7 @@ def test_set_bonder_centroid():
 
 def test_untag_atoms():
     CACHE_SETTINGS['ON'] = False
-    mol = StructUnit.smarts_init('NC1CC(N)CC(N)C1', 'amine')
+    mol = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
     CACHE_SETTINGS['ON'] = True
     assert any(a.HasProp('fg') for a in mol.mol.GetAtoms())
     mol.untag_atoms()

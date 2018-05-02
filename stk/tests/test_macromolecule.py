@@ -1,29 +1,31 @@
-from types import SimpleNamespace
-from os.path import join
-from ..molecular import (MacroMolecule, Molecule, FourPlusSix,
-                         StructUnit, StructUnit2, StructUnit3)
-from ..population import Population
+import os
 
-pop = Population.load(join('data', 'macromolecule', 'mm.json'),
-                      Molecule.from_dict)
+from ..molecular import (StructUnit2, MacroMolecule, Polymer, Linear,
+                         Molecule, CACHE_SETTINGS)
+
+if not os.path.exists('macromolecule_tests_output'):
+    os.mkdir('macromolecule_tests_output')
+
+bb1 = StructUnit2.smiles_init('Nc1ccc(N)cc1', 'amine')
+bb2 = StructUnit2.smiles_init('O=Cc1cc2ccc3cc(C=O)cc4ccc(c1)c2c34', 'aldehyde')
+mol = Polymer([bb1, bb2], Linear('AB', [0.5, 0.5], 3))
 
 
 def test_building_block_cores():
     # Check that the yielded rdkit molecules match the cores of the
     # building block molecules.
-    macromol = pop[0]
-    for i in range(len(macromol.building_blocks)):
-        for frag in macromol.building_block_cores(i):
+    for i in range(len(mol.building_blocks)):
+        for frag in mol.building_block_cores(i):
             bb1match = len(frag.GetSubstructMatch(
-                           macromol.building_blocks[0].core()))
+                           mol.building_blocks[0].core()))
             bb2match = len(frag.GetSubstructMatch(
-                           macromol.building_blocks[1].core()))
+                           mol.building_blocks[1].core()))
             nfrag_atoms = frag.GetNumAtoms()
             assert bb1match == nfrag_atoms or bb2match == nfrag_atoms
 
 
 def test_bb_distortion():
-    assert isinstance(pop[0].bb_distortion(), float)
+    assert isinstance(mol.bb_distortion(), float)
 
 
 def test_comparison():
@@ -32,14 +34,13 @@ def test_comparison():
 
     """
 
-    # Generate cages with various fitnesses.
-    a = MacroMolecule.testing_init('a', 'a', SimpleNamespace(a=1))
+    a = MacroMolecule.__new__(MacroMolecule)
     a.fitness = 1
 
-    b = MacroMolecule.testing_init('b', 'b', SimpleNamespace(b=1))
+    b = MacroMolecule.__new__(MacroMolecule)
     b.fitness = 1
 
-    c = MacroMolecule.testing_init('c', 'c', SimpleNamespace(c=1))
+    c = MacroMolecule.__new__(MacroMolecule)
     c.fitness = 2
 
     # Comparison operators should compare their fitness.
@@ -51,51 +52,28 @@ def test_comparison():
 
 
 def test_caching():
+    mol2 = Polymer([bb2, bb1], Linear('AB', [0.5, 0.5], 3))
+    assert mol is mol2
 
-    # Make a MacroMolecule the regular way.
-    bb1 = StructUnit2(join('data', 'struct_unit2', 'amine.mol2'))
-    bb2 = StructUnit3(join('data', 'struct_unit3', 'amine.mol2'))
-    mol1 = MacroMolecule([bb1, bb2], FourPlusSix())
-
-    # Make a MacroMolecule using JSON.
-    mol2 = pop[0]
-
-    assert mol1 is not mol2
-
-    # Remake the MacroMolecules.
-    mol3 = Molecule.from_dict(mol1.json())
-    mol4 = MacroMolecule(mol2.building_blocks,
-                         mol2.topology.__class__())
-
-    # Confirm they are cached.
-    assert mol1 is mol3
-    assert mol1 is not mol4
-    assert mol2 is mol4
-    assert mol2 is not mol3
+    mol3 = Polymer([bb1, bb2], Linear('AB', [1, 0.5], 3))
+    assert mol is not mol3
 
 
 def test_json_init():
-    og_c = dict(MacroMolecule.cache)
-    try:
-        # Make a MacroMolecule using JSON.
-        MacroMolecule.cache = {}
-        mol = pop[0]
+    path = os.path.join('macromolecule_tests_output', 'mol.json')
+    mol.dump(path)
+    CACHE_SETTINGS['ON'] = False
+    mol2 = Molecule.load(path, Molecule.from_dict)
+    CACHE_SETTINGS['ON'] = True
 
-        assert mol.fitness is None
-        assert all(isinstance(x, StructUnit) for x in
-                   mol.building_blocks)
-        assert isinstance(mol.key, tuple)
-        assert mol.optimized is True
-        assert mol.unscaled_fitness == {}
-        assert mol.bonder_ids == [
-                              6, 15, 24, 59, 68, 77, 112, 121, 130,
-                              165, 174, 183, 219, 222, 252, 255, 285,
-                              288, 318, 321, 351, 354, 384, 387]
-        assert mol.energy.__class__.__name__ == 'Energy'
-        assert mol.topology.__class__.__name__ == 'FourPlusSix'
-        assert len(mol.mol.GetAtoms()) == 410
-        assert mol.bonds_made == 12
-        assert set(mol.bb_counter.values()) == {4, 6}
-        assert mol.progress_params == {}
-    finally:
-        MacroMolecule.cache = og_c
+    assert mol is not mol2
+    assert mol.bonder_ids == mol2.bonder_ids
+    assert mol.atom_props == mol2.atom_props
+    assert mol.bb_counter == mol2.bb_counter
+    assert mol.topology == mol2.topology
+    assert mol.bonds_made == mol2.bonds_made
+    assert mol.unscaled_fitness == mol2.unscaled_fitness
+    assert mol.progress_params == mol2.progress_params
+    assert all(bb1.same(bb2) and bb1.func_grp.name == bb2.func_grp.name
+               for bb1, bb2 in
+               zip(mol.building_blocks, mol2.building_blocks))

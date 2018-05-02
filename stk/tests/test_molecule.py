@@ -8,7 +8,7 @@ from scipy.spatial.distance import euclidean
 from ..molecular import StructUnit, Molecule, CACHE_SETTINGS
 from ..utilities import periodic_table
 
-mol = StructUnit.smarts_init('NC1CC(Br)C(Br)CC1N')
+mol = StructUnit.smiles_init('NC1CC(Br)C(Br)CC1N')
 
 
 def test_all_atom_coords():
@@ -129,7 +129,7 @@ def test_graph():
 
 def test_max_diameter():
     CACHE_SETTINGS['ON'] = False
-    mol = StructUnit.smarts_init('NC1CC(Br)C(Br)CC1N')
+    mol = StructUnit.smiles_init('NC1CC(Br)C(Br)CC1N')
     CACHE_SETTINGS['ON'] = True
 
     # Make a position matrix which sets all atoms to the origin except
@@ -175,13 +175,12 @@ def test_same():
     """
 
     CACHE_SETTINGS['ON'] = False
-    mol2 = StructUnit.smarts_init('NC1CC(Br)C(Br)CC1N')
+    mol2 = StructUnit.rdkit_init(mol.mol)
     CACHE_SETTINGS['ON'] = True
-
     assert mol is not mol2
     assert mol.same(mol2)
 
-    mol3 = StructUnit.smarts_init('NC1CC(N)CC(N)C1', 'amine')
+    mol3 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
 
     assert mol is not mol3
     assert not mol.same(mol3)
