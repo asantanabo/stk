@@ -5,25 +5,10 @@ import numpy as np
 from scipy.spatial.distance import euclidean
 
 
-from ..molecular import Molecule
+from ..molecular import StructUnit, Molecule, CACHE_SETTINGS
 from ..utilities import periodic_table
 
-
-# Make a loader for a test Molecule object.
-def make_mol():
-    mol = Molecule.__new__(Molecule)
-    molfile = join('data', 'molecule', 'molecule.mol')
-    mol.mol = rdkit.MolFromMolFile(molfile,
-                                   removeHs=False,
-                                   sanitize=False)
-    return mol
-
-
-# Load the test molecule into a Molecule instance.
-# This instance can be used in unit tests which do not change the state
-# of the instance. Unit tests which change state should create their
-# own local instance.
-mol = make_mol()
+mol = StructUnit.smarts_init('NC1CC(Br)C(Br)CC1N')
 
 
 def test_all_atom_coords():
@@ -32,14 +17,13 @@ def test_all_atom_coords():
 
     """
 
-    conf = mol.mol.GetConformer()
-    for (atom_id, coord), atom in it.zip_longest(
-                                mol.all_atom_coords(),
-                                mol.mol.GetAtoms()):
-
-        assert atom_id == atom.GetIdx()
-        conf_coord = np.array(conf.GetAtomPosition(atom_id))
-        assert np.allclose(coord, conf_coord, atol=1e-8)
+    natoms = mol.mol.GetNumAtoms()
+    for i, (atom, coord) in enumerate(mol.all_atom_coords(), 1):
+        assert atom < natoms
+        assert type(atom) == int
+        assert type(coord) == np.ndarray
+        assert len(coord) == 3
+    assert natoms == i
 
 
 def test_atom_coords():
@@ -125,9 +109,6 @@ def test_centroid_functions():
 
     """
 
-    # Initialize the test molecule.
-    mol = make_mol()
-
     # Save the coordinates of the new centroid.
     new_centroid = mol.centroid() + np.array([10, 20, 4])
     mol.set_position(new_centroid)
@@ -147,8 +128,10 @@ def test_graph():
 
 
 def test_max_diameter():
-    # Make a new test molecule.
-    mol = make_mol()
+    CACHE_SETTINGS['ON'] = False
+    mol = StructUnit.smarts_init('NC1CC(Br)C(Br)CC1N')
+    CACHE_SETTINGS['ON'] = True
+
     # Make a position matrix which sets all atoms to the origin except
     # 2 and 13. These should be placed a distance of 100 apart.
     pos_mat = [[0 for x in range(3)] for
@@ -160,7 +143,7 @@ def test_max_diameter():
     d, id1, id2 = mol.max_diameter()
     # Note that it is not exactly 100 because of the Van der Waals
     # radii of the atoms.
-    assert np.isclose(d,  102.79, atol=1e-8)
+    assert d > 100 and d < 105
     assert id1 == 1
     assert id2 == 12
 
@@ -191,41 +174,20 @@ def test_same():
 
     """
 
-    mol2 = make_mol()
+    CACHE_SETTINGS['ON'] = False
+    mol2 = StructUnit.smarts_init('NC1CC(Br)C(Br)CC1N')
+    CACHE_SETTINGS['ON'] = True
+
     assert mol is not mol2
     assert mol.same(mol2)
 
-    mol3 = Molecule.__new__(Molecule)
-    molfile = join('data', 'molecule', 'molecule2.mol')
-    mol3.mol = rdkit.MolFromMolFile(molfile,
-                                    removeHs=False,
-                                    sanitize=False)
+    mol3 = StructUnit.smarts_init('NC1CC(N)CC(N)C1', 'amine')
+
     assert mol is not mol3
     assert not mol.same(mol3)
-    assert not mol2.same(mol3)
-
-
-def test_save_bonders():
-    mol = make_mol()
-    # Give the first five atoms the 'bonder' tag. Then check if five
-    # atoms are tagged as bonders. Add 'del' tags to all other atoms
-    # to make sure only 'bonder' tags are gettting counted and none
-    # others.
-    mol.bonder_ids = []
-    for i, atom in enumerate(mol.mol.GetAtoms()):
-        if i < 5:
-            atom.SetProp('bonder', '1')
-        elif i < 10:
-            atom.SetProp('del', '1')
-        else:
-            break
-
-    mol.save_bonders()
-    assert len(mol.bonder_ids) == 5
 
 
 def test_set_position_from_matrix():
-    mol = make_mol()
 
     # The new position matrix just sets all atomic positions to origin.
     new_pos_mat = np.matrix([[0 for x in range(3)] for y in
@@ -248,7 +210,5 @@ def test_shift():
 
 
 def test_update_from_mae():
-    mol = make_mol()
-
     mol.update_from_mae(join('data', 'molecule', 'molecule.mae'), 1)
     assert mol.max_diameter(0) != mol.max_diameter(1)
