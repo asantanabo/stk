@@ -13,7 +13,7 @@ def test_assembly():
     bb4 = StructUnit2.smiles_init('Oc1cc2cc(O)c(O)nc2cc1O', 'diol')
 
     p1 = Polymer([bb1, bb2], Linear('AB', [0, 0], 3))
-    p2 = Polymer([bb1, bb2], Linear('AB', [1, 1], 3))
+    p2 = Polymer([bb1, bb2], Linear('AB', [1, 1], 3, 'fg'))
     p3 = Polymer([bb3, bb4], Linear('AB', [0, 0], 3))
 
     path = os.path.join('linear_topology_tests', 'p1.mol')
