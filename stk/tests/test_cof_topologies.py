@@ -17,8 +17,8 @@ def test_honeycomb():
     cof = Periodic([bb1, bb2], Honeycomb())
     path = join(test_dir, 'honeycomb.sdf')
     cof.write(path)
-    # island = cof.island([3, 3, 1])
-    # rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
+    island = cof.island([3, 3, 1])
+    rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
 
 
 def test_hexagonal():
@@ -26,8 +26,8 @@ def test_hexagonal():
     cof = Periodic([bb1, bb2], Hexagonal())
     path = os.path.join(test_dir, 'hexagonal.sdf')
     cof.write(path)
-    # island = cof.island([3, 3, 1])
-    # rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
+    island = cof.island([3, 3, 1])
+    rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
 
 
 def test_square():
@@ -35,8 +35,8 @@ def test_square():
     cof = Periodic([bb1, bb2], Square())
     path = os.path.join(test_dir, 'square.sdf')
     cof.write(path)
-    # island = cof.island([3, 3, 1])
-    # rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
+    island = cof.island([3, 3, 1])
+    rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
 
 
 def test_kagome():
@@ -44,5 +44,5 @@ def test_kagome():
     cof = Periodic([bb1, bb2], Kagome())
     path = os.path.join(test_dir, 'kagome.sdf')
     cof.write(path)
-    # island = cof.island([3, 3, 1])
-    # rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
+    island = cof.island([3, 3, 1])
+    rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
