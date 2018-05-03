@@ -41,8 +41,18 @@ def test_square():
 
 def test_kagome():
     bb2 = StructUnit3(join('data', 'cof', 'aldehyde4f_2.mol'))
-    cof = Periodic([bb1, bb2], Kagome())
+    cof = Periodic([bb1, bb2], Kagome(multitopic_aligners=[1, 0, 1]))
     path = os.path.join(test_dir, 'kagome.sdf')
+    cof.write(path)
+    island = cof.island([3, 3, 1])
+    rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
+
+
+def test_boron_cof():
+    bb1 = StructUnit2.smiles_init('Oc1cc2cc(O)c(O)nc2cc1O', 'diol')
+    bb2 = StructUnit3(join('data', 'cof', 'boronic_acid.sdf'))
+    cof = Periodic([bb1, bb2], Square())
+    path = join(test_dir, 'boron.sdf')
     cof.write(path)
     island = cof.island([3, 3, 1])
     rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
