@@ -1,5 +1,6 @@
 from ..molecular import (StructUnit3, StructUnit2, Periodic,
-                         Honeycomb, Hexagonal, Square, Kagome)
+                         Honeycomb, Hexagonal, Square, Kagome,
+                         NoLinkerHoneycomb)
 import os
 from os.path import join
 import rdkit.Chem.AllChem as rdkit
@@ -53,6 +54,16 @@ def test_boron_cof():
     bb2 = StructUnit3(join('data', 'cof', 'boronic_acid.sdf'))
     cof = Periodic([bb1, bb2], Square())
     path = join(test_dir, 'boron.sdf')
+    cof.write(path)
+    island = cof.island([3, 3, 1])
+    rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
+
+
+def test_nolinkerhoneycomb():
+    bb1 = StructUnit3.smiles_init('O=Cc1cc(C=O)nc(C=O)c1', 'aldehyde')
+    bb2 = StructUnit3.smiles_init('NCc1cc(CN)nc(CN)n1', 'amine')
+    cof = Periodic([bb1, bb2], NoLinkerHoneycomb())
+    path = join(test_dir, 'nolinkerhoneycomb.sdf')
     cof.write(path)
     island = cof.island([3, 3, 1])
     rdkit.MolToMolFile(island, path.replace('.sdf', '_island.sdf'))
