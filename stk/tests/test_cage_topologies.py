@@ -1,7 +1,10 @@
 from ..molecular.topologies.cage import *
-from ..molecular import StructUnit3, StructUnit2, Cage
+from ..molecular import StructUnit3, StructUnit2, Cage, CACHE_SETTINGS
 import os
 from os.path import join
+
+CACHE_SETTINGS['ON'] = False
+
 
 test_dir = 'cage_topology_tests'
 if not os.path.exists(test_dir):
