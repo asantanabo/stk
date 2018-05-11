@@ -60,20 +60,25 @@ def test_caching():
 
 
 def test_json_init():
-    path = os.path.join('macromolecule_tests_output', 'mol.json')
-    mol.dump(path)
-    CACHE_SETTINGS['ON'] = False
-    mol2 = Molecule.load(path, Molecule.from_dict)
-    CACHE_SETTINGS['ON'] = True
+    try:
+        path = os.path.join('macromolecule_tests_output', 'mol.json')
+        mol.dump(path)
+        CACHE_SETTINGS['ON'] = False
+        mol2 = Molecule.load(path, Molecule.from_dict)
+        CACHE_SETTINGS['ON'] = True
 
-    assert mol is not mol2
-    assert mol.bonder_ids == mol2.bonder_ids
-    assert mol.atom_props == mol2.atom_props
-    assert mol.bb_counter == mol2.bb_counter
-    assert mol.topology == mol2.topology
-    assert mol.bonds_made == mol2.bonds_made
-    assert mol.unscaled_fitness == mol2.unscaled_fitness
-    assert mol.progress_params == mol2.progress_params
-    assert all(bb1.same(bb2) and bb1.func_grp.name == bb2.func_grp.name
-               for bb1, bb2 in
-               zip(mol.building_blocks, mol2.building_blocks))
+        assert mol is not mol2
+        assert mol.bonder_ids == mol2.bonder_ids
+        assert mol.atom_props == mol2.atom_props
+        assert mol.bb_counter == mol2.bb_counter
+        assert mol.topology == mol2.topology
+        assert mol.bonds_made == mol2.bonds_made
+        assert mol.unscaled_fitness == mol2.unscaled_fitness
+        assert mol.progress_params == mol2.progress_params
+        assert all(bb1.same(bb2) and bb1.func_grp.name == bb2.func_grp.name
+                   for bb1, bb2 in
+                   zip(mol.building_blocks, mol2.building_blocks))
+    except Exception:
+        raise
+    finally:
+        CACHE_SETTINGS['ON'] = True

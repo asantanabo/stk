@@ -1,8 +1,6 @@
 from ..ga import Crossover, Population
-from ..molecular import Molecule, CACHE_SETTINGS
+from ..molecular import Molecule
 from os.path import join
-
-CACHE_SETTINGS['ON'] = True
 
 pop = Population.load(join('data', 'crossover', 'molecules.json'),
                       Molecule.from_dict)

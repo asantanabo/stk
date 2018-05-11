@@ -79,33 +79,46 @@ def test_is_core_atom():
 
 
 def test_json_init():
-    path = os.path.join('struct_unit_tests_output', 'mol.json')
-    mol.dump(path)
-    CACHE_SETTINGS['ON'] = False
-    mol2 = Molecule.load(path, Molecule.from_dict)
-    CACHE_SETTINGS['ON'] = True
+    try:
+        path = os.path.join('struct_unit_tests_output', 'mol.json')
+        mol.dump(path)
+        CACHE_SETTINGS['ON'] = False
+        mol2 = Molecule.load(path, Molecule.from_dict)
+        CACHE_SETTINGS['ON'] = True
 
-    assert isinstance(mol.file, str)
-    assert mol2.optimized
-    assert mol2.bonder_ids == mol.bonder_ids
-    assert mol2.energy.__class__.__name__ == 'Energy'
-    assert mol2.func_grp.name == 'amine'
-    assert mol is not mol2
-    assert mol.atom_props == mol.atom_props
+        assert isinstance(mol.file, str)
+        assert mol2.optimized
+        assert mol2.bonder_ids == mol.bonder_ids
+        assert mol2.energy.__class__.__name__ == 'Energy'
+        assert mol2.func_grp.name == 'amine'
+        assert mol is not mol2
+        assert mol.atom_props == mol.atom_props
+
+    except Exception:
+        raise
+    finally:
+        CACHE_SETTINGS['ON'] = True
 
 
 def test_caching():
-    mol2 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
-    assert mol is mol2
+    try:
+        mol2 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
+        assert mol is mol2
 
-    mol3 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'aldehyde')
-    assert mol3 is not mol
+        mol3 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'aldehyde')
+        assert mol3 is not mol
 
-    CACHE_SETTINGS['ON'] = False
-    mol4 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
-    CACHE_SETTINGS['ON'] = True
+        CACHE_SETTINGS['ON'] = False
+        mol4 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
+        CACHE_SETTINGS['ON'] = True
 
-    assert mol is not mol4
+        assert mol is not mol4
+
+    except Exception:
+        raise
+
+    finally:
+        CACHE_SETTINGS['ON'] = True
 
 
 def test_set_bonder_centroid():
@@ -114,9 +127,14 @@ def test_set_bonder_centroid():
 
 
 def test_untag_atoms():
-    CACHE_SETTINGS['ON'] = False
-    mol = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
-    CACHE_SETTINGS['ON'] = True
-    assert any(a.HasProp('fg') for a in mol.mol.GetAtoms())
-    mol.untag_atoms()
-    assert all(not a.HasProp('fg') for a in mol.mol.GetAtoms())
+    try:
+        CACHE_SETTINGS['ON'] = False
+        mol = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
+        CACHE_SETTINGS['ON'] = True
+        assert any(a.HasProp('fg') for a in mol.mol.GetAtoms())
+        mol.untag_atoms()
+        assert all(not a.HasProp('fg') for a in mol.mol.GetAtoms())
+    except Exception:
+        raise
+    finally:
+        CACHE_SETTINGS['ON'] = True
