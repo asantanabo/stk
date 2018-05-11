@@ -2,14 +2,13 @@ import pytest
 from collections import Counter
 import numpy as np
 from types import SimpleNamespace
-from os.path import join
-import copy
+import os
 
-from ..molecular import Cage, MacroMolecule, Molecule
+from ..molecular import Cage, MacroMolecule, Molecule, CACHE_SETTINGS
 from ..population import Population
 
 
-class TestMol:
+class Mol:
     def __init__(self, x):
         self.x = x
 
@@ -164,8 +163,8 @@ def test_add_subpopulation():
 
 def test_has_structure():
 
-    a1, a2 = TestMol(1), TestMol(1)
-    b1, b2 = TestMol(2), TestMol(2)
+    a1, a2 = Mol(1), Mol(1)
+    b1, b2 = Mol(2), Mol(2)
 
     pop3 = Population()
     pop3.members.append(a1)
@@ -181,19 +180,27 @@ def test_has_structure():
 
 
 def test_load():
-    og_cache = dict(Cage.cache)
 
-    pname = join('data', 'population', 'pop2.json')
-    p = Population.load(pname,
-                        lambda x: Molecule.from_dict(x, load_names=False))
-    for mem in p:
-        assert not mem.name
+    try:
+        pname = os.path.join('data', 'population', 'pop.json')
+        p = Population.load(pname, Molecule.from_dict)
 
-    Cage.cache = og_cache
+        CACHE_SETTINGS['ON'] = False
+        p1 = Population.load(pname, Molecule.from_dict)
 
-    p = Population.load(pname, Molecule.from_dict)
-    for mem in p:
-        assert mem.name
+        for m in p1:
+            assert m not in p
+
+        CACHE_SETTINGS['ON'] = True
+        p2 = Population.load(pname, Molecule.from_dict)
+        for m in p2:
+            assert m in p
+
+    except Exception:
+        raise
+
+    finally:
+        CACHE_SETTINGS['ON'] = True
 
 
 def test_all_members():
