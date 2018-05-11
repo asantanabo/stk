@@ -8,10 +8,13 @@ import copy
 from ..molecular import Cage, MacroMolecule, Molecule
 from ..population import Population
 
-pop = Population.load(join('data', 'population', 'population.json'),
-                      Molecule.from_dict)
-pop2 = Population.load('data/population/init_cage_isomers.json',
-                       Molecule.from_dict)
+
+class TestMol:
+    def __init__(self, x):
+        self.x = x
+
+    def same(self, other):
+        return other.x == self.x
 
 
 def generate_population(offset=False):
@@ -161,9 +164,8 @@ def test_add_subpopulation():
 
 def test_has_structure():
 
-    a1, b1 = pop2[:2]
-    a2 = copy.deepcopy(a1)
-    b2 = copy.deepcopy(b1)
+    a1, a2 = TestMol(1), TestMol(1)
+    b1, b2 = TestMol(2), TestMol(2)
 
     pop3 = Population()
     pop3.members.append(a1)
