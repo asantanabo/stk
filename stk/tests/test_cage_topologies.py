@@ -2,8 +2,7 @@ from ..molecular.topologies.cage import *
 from ..molecular import StructUnit3, StructUnit2, Cage, CACHE_SETTINGS
 import os
 from os.path import join
-
-CACHE_SETTINGS['ON'] = False
+from functools import wraps
 
 
 test_dir = 'cage_topology_tests'
@@ -12,7 +11,25 @@ if not os.path.exists(test_dir):
 data_dir = os.path.join(os.getcwd(), 'data', 'cage_topologies')
 
 
+def protect_cache(func):
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        try:
+            CACHE_SETTINGS['ON'] = False
+            r = func(*args, **kwargs)
+        except Exception:
+            r = None
+            raise
+        finally:
+            CACHE_SETTINGS['ON'] = True
+            return r
+
+    return inner
+
+
 # 3 + 4 topology tests.
+@protect_cache
 def test_SixPlusEight():
     bb1 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
     bb2 = StructUnit3(join(data_dir, 'amine4.mol'))
@@ -21,6 +38,7 @@ def test_SixPlusEight():
 
 
 # 2 + 4 topolgy tests.
+@protect_cache
 def test_TwoPlusFour():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'amine4.mol'))
@@ -28,6 +46,7 @@ def test_TwoPlusFour():
     c.write(join(test_dir, 'TwoPlusFour.mol'))
 
 
+@protect_cache
 def test_ThreePlusSix():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'amine4.mol'))
@@ -35,6 +54,7 @@ def test_ThreePlusSix():
     c.write(join(test_dir, 'ThreePlusSix.mol'))
 
 
+@protect_cache
 def test_FourPlusEight():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'amine4.mol'))
@@ -42,6 +62,7 @@ def test_FourPlusEight():
     c.write(join(test_dir, 'FourPlusEight.mol'))
 
 
+@protect_cache
 def test_FivePlusTen():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'amine4.mol'))
@@ -49,6 +70,7 @@ def test_FivePlusTen():
     c.write(join(test_dir, 'FivePlusTen.mol'))
 
 
+@protect_cache
 def test_SixPlusTwelve():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'amine4.mol'))
@@ -56,6 +78,7 @@ def test_SixPlusTwelve():
     c.write(join(test_dir, 'SixPlusTwelve.mol'))
 
 
+@protect_cache
 def test_EightPlusSixteen():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'amine4.mol'))
@@ -63,6 +86,7 @@ def test_EightPlusSixteen():
     c.write(join(test_dir, 'EightPlusSixteen.mol'))
 
 
+@protect_cache
 def test_TenPlusTwenty():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'amine4.mol'))
@@ -71,6 +95,7 @@ def test_TenPlusTwenty():
 
 
 # 3 + 3 cage topologies.
+@protect_cache
 def test_OnePlusOne():
     bb1 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -78,6 +103,7 @@ def test_OnePlusOne():
     c.write(join(test_dir, 'OnePlusOne.mol'))
 
 
+@protect_cache
 def test_TwoPlusTwo():
     bb1 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -85,6 +111,7 @@ def test_TwoPlusTwo():
     c.write(join(test_dir, 'TwoPlusTwo.mol'))
 
 
+@protect_cache
 def test_FourPlusFour():
     bb1 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -93,6 +120,7 @@ def test_FourPlusFour():
 
 
 # 2 + 3 cage topologies.
+@protect_cache
 def test_TwoPlusThree():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -100,6 +128,7 @@ def test_TwoPlusThree():
     c.write(join(test_dir, 'TwoPlusThree.mol'))
 
 
+@protect_cache
 def test_FourPlusSix():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -107,6 +136,7 @@ def test_FourPlusSix():
     c.write(join(test_dir, 'FourPlusSix.mol'))
 
 
+@protect_cache
 def test_multiFourPlusSix():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit2(join(data_dir, 'amine2_1.mol'))
@@ -130,6 +160,7 @@ def test_multiFourPlusSix():
     c2.write(join(test_dir, 'multi_FourPlusSix_2.mol'))
 
 
+@protect_cache
 def test_FourPlusSix2():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -137,6 +168,7 @@ def test_FourPlusSix2():
     c.write(join(test_dir, 'FourPlusSix2.mol'))
 
 
+@protect_cache
 def test_SixPlusNine():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -144,6 +176,7 @@ def test_SixPlusNine():
     c.write(join(test_dir, 'SixPlusNine.mol'))
 
 
+@protect_cache
 def test_EightPlusTwelve():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -151,6 +184,7 @@ def test_EightPlusTwelve():
     c.write(join(test_dir, 'EightPlusTwelve.mol'))
 
 
+@protect_cache
 def test_Dodecahedron():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb2 = StructUnit3(join(data_dir, 'aldehyde3.mol'))
@@ -158,6 +192,7 @@ def test_Dodecahedron():
     c.write(join(test_dir, 'Dodecahedron.mol'))
 
 
+@protect_cache
 def test_multiconformer():
     bb1 = StructUnit2(join(data_dir, 'amine2.mol'))
     bb1.update_from_mol(join(data_dir, 'amine2_conf2.mol'), 1)
