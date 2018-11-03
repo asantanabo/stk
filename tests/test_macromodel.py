@@ -11,8 +11,7 @@ import sys
 import os
 from os.path import join
 import numpy as np
-from tempfile import TemporaryDirectory
-from .. import macromodel_opt, macromodel_cage_opt, Molecule
+import stk
 
 macromodel = pytest.mark.skipif(
     all('macromodel' not in x for x in sys.argv),
@@ -27,12 +26,12 @@ dirs = [r'C:\Program Files\Schrodinger2016-3',
         '/opt/schrodinger2017-2']
 mm_path = next((x for x in dirs if os.path.exists(x)), None)
 
-c1 = Molecule.load(join('data', 'macromodel', 'cage.json'))
-c2 = Molecule.load(join('data', 'macromodel', 'small_mol.json'))
+c1 = stk.Molecule.load(join('data', 'macromodel', 'cage.json'))
+c2 = stk.Molecule.load(join('data', 'macromodel', 'small_mol.json'))
 outdir = 'macromodel_tests_output'
 try:
     os.mkdir(outdir)
-except:
+except Exception:
     ...
 
 
@@ -41,9 +40,10 @@ def test_macromodel_opt():
     if outdir not in os.getcwd():
         os.chdir(outdir)
 
-    macromodel_opt(c1, mm_path,
-    {'md' : True, 'gradient' : 1, 'restricted' : False},
-    {'gradient' : 1, 'sim_time' : 20, 'eq_time' : 2, 'confs' : 2})
+    stk.macromodel_opt(
+        c1, mm_path,
+        {'md': True, 'gradient': 1, 'restricted': False},
+        {'gradient': 1, 'sim_time': 20, 'eq_time': 2, 'confs': 2})
 
 
 @macromodel
@@ -51,9 +51,10 @@ def test_macromodel_cage_opt():
     if outdir not in os.getcwd():
         os.chdir(outdir)
 
-    macromodel_cage_opt(c1, mm_path,
-    {'md' : True, 'gradient' : 1, 'restricted' : False},
-    {'gradient' : 1, 'sim_time' : 20, 'eq_time' : 2, 'confs' : 2})
+    stk.macromodel_cage_opt(
+        c1, mm_path,
+        {'md': True, 'gradient': 1, 'restricted': False},
+        {'gradient': 1, 'sim_time': 20, 'eq_time': 2, 'confs': 2})
 
 
 @macromodel

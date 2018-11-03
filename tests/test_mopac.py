@@ -11,7 +11,7 @@ import sys
 import os
 from os.path import join
 import numpy as np
-from .. import mopac_opt, Molecule
+import stk
 
 mopac = pytest.mark.skipif(
     all('mopac' not in x for x in sys.argv),
@@ -23,12 +23,12 @@ dirs = [r'C:\Program Files\mopac\MOPAC2016.exe',
         '/opt/mopac/MOPAC2016.exe']
 mopac_path = next((x for x in dirs if os.path.exists(x)), None)
 
-c1 = Molecule.load(join('data', 'mopac', 'small_mol.json'))
-c2 = Molecule.load(join('data', 'mopac', 'small_mol2.json'))
+c1 = stk.Molecule.load(join('data', 'mopac', 'small_mol.json'))
+c2 = stk.Molecule.load(join('data', 'mopac', 'small_mol2.json'))
 outdir = 'mopac_tests_output'
 try:
     os.mkdir(outdir)
-except:
+except Exception:
     ...
 
 
@@ -37,7 +37,7 @@ def test_mopac_opt():
     if outdir not in os.getcwd():
         os.chdir(outdir)
 
-    mopac_opt(c1, mopac_path)
+    stk.mopac_opt(c1, mopac_path)
 
 
 @mopac

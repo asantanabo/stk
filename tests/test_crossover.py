@@ -1,15 +1,14 @@
-from ..ga import Crossover, Population
-from ..molecular import Molecule
+import stk
 from os.path import join
 
-pop = Population.load(join('data', 'crossover', 'molecules.json'),
-                      Molecule.from_dict)
+pop = stk.Population.load(join('data', 'crossover', 'molecules.json'),
+                      stk.Molecule.from_dict)
 m1, m2 = pop[:2]
 
 
 def test_bb_lk_exchange():
     parent_tops = {m1.topology.__class__, m2.topology.__class__}
-    offspring_pop = Crossover.bb_lk_exchange(None, m1, m2)
+    offspring_pop = stk.Crossover.bb_lk_exchange(None, m1, m2)
     for offspring in offspring_pop:
 
         assert offspring.topology.__class__ in parent_tops

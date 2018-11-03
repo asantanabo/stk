@@ -3,9 +3,7 @@ from collections import Counter
 import numpy as np
 from types import SimpleNamespace
 import os
-
-from ..molecular import Cage, MacroMolecule, Molecule, CACHE_SETTINGS
-from ..population import Population
+import stk
 
 
 class Mol:
@@ -26,24 +24,24 @@ def generate_population(offset=False):
 
     # Generate a bunch of cages.
     if offset:
-        cages = [Cage.testing_init(values[x+1], values[x],
+        cages = [stk.Cage.testing_init(values[x+1], values[x],
                  SimpleNamespace(a=values[x])) for x in range(0, 22)]
     if not offset:
-        cages = [Cage.testing_init(values[x], values[x],
+        cages = [stk.Cage.testing_init(values[x], values[x],
                  SimpleNamespace(a=values[x])) for x in range(0, 22)]
 
     # Generate a couple of populations to be used as subpopulations.
-    sub1 = Population(*cages[0:4])
-    sub2 = Population(*cages[4:9])
-    sub3 = Population(*cages[9:14])
-    sub4 = Population(*cages[14:19])
+    sub1 = stk.Population(*cages[0:4])
+    sub2 = stk.Population(*cages[4:9])
+    sub3 = stk.Population(*cages[9:14])
+    sub4 = stk.Population(*cages[14:19])
 
     # Place subpopulations into one another.
     sub1.populations.append(sub3)
     sub2.populations.append(sub4)
 
     # Initialize final population of subpopulations and cages.
-    return Population(sub1, sub2, *cages[-3:])
+    return stk.Population(sub1, sub2, *cages[-3:])
 
 
 pop = generate_population()
@@ -51,21 +49,23 @@ pop = generate_population()
 
 def test_init():
     """
-    Tests the __init__ method of the Population class.
+    Tests the __init__ method of the stk.Population class.
 
     """
 
-    # A test where only ``Cage`` and ``Population`` instances are used
+    # A test where only ``stk.Cage`` and ``stk.Population`` instances are used
     # for initialization.
-    Population(Cage.__new__(Cage), Cage.__new__(Cage),
-               Population(), Cage.__new__(Cage),
-               Population())
+    stk.Population(
+               stk.Cage.__new__(stk.Cage), stk.Cage.__new__(stk.Cage),
+               stk.Population(), stk.Cage.__new__(stk.Cage),
+               stk.Population())
 
-    # Only ``Cage`` and ``Population`` instances are used for
+    # Only ``stk.Cage`` and ``stk.Population`` instances are used for
     # initialization,
-    Population(Cage.__new__(Cage), Cage.__new__(Cage),
-               Population(), Cage.__new__(Cage),
-               Population())
+    stk.Population(
+               stk.Cage.__new__(stk.Cage), stk.Cage.__new__(stk.Cage),
+               stk.Population(), stk.Cage.__new__(stk.Cage),
+               stk.Population())
 
 
 def test_add_members_duplicates():
@@ -83,17 +83,17 @@ def test_add_members_duplicates():
     # Add all cages in `supplier` to `receiver`.
     receiver.add_members(supplier, duplicates=True)
 
-    # Cages in `supplier` should now be held in `members` attribute of
-    # `receiver`. A new ``Population`` instance must be created for
+    # stk.Cages in `supplier` should now be held in `members` attribute of
+    # `receiver`. A new ``stk.Population`` instance must be created for
     # these tests because `members` is a ``list`` which have a
-    # different definition of `__contains`__ to ``Population``.
+    # different definition of `__contains`__ to ``stk.Population``.
     # Identity needs to be compared by with lists equality
     # (via ``__eq__``) is compared.
-    assert all(cage in Population(*receiver.members)
+    assert all(cage in stk.Population(*receiver.members)
                for cage in supplier)
 
     # The reverse should not be true.
-    assert not all(cage in Population(*supplier.members)
+    assert not all(cage in stk.Population(*supplier.members)
                    for cage in receiver)
 
     # Count the frequency of each cage` in `receiver.members`.
@@ -166,9 +166,9 @@ def test_has_structure():
     a1, a2 = Mol(1), Mol(1)
     b1, b2 = Mol(2), Mol(2)
 
-    pop3 = Population()
+    pop3 = stk.Population()
     pop3.members.append(a1)
-    pop3.populations.append(Population())
+    pop3.populations.append(stk.Population())
     pop3.populations[0].members.append(b1)
 
     assert a1 in pop3
@@ -183,16 +183,16 @@ def test_load():
 
     try:
         pname = os.path.join('data', 'population', 'pop.json')
-        p = Population.load(pname, Molecule.from_dict)
+        p = stk.Population.load(pname, stk.Molecule.from_dict)
 
-        CACHE_SETTINGS['ON'] = False
-        p1 = Population.load(pname, Molecule.from_dict)
+        stk.CACHE_SETTINGS['ON'] = False
+        p1 = stk.Population.load(pname, stk.Molecule.from_dict)
 
         for m in p1:
             assert m not in p
 
-        CACHE_SETTINGS['ON'] = True
-        p2 = Population.load(pname, Molecule.from_dict)
+        stk.CACHE_SETTINGS['ON'] = True
+        p2 = stk.Population.load(pname, stk.Molecule.from_dict)
         for m in p2:
             assert m in p
 
@@ -200,7 +200,7 @@ def test_load():
         raise
 
     finally:
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = True
 
 
 def test_all_members():
@@ -210,32 +210,33 @@ def test_all_members():
     """
 
     # Generate a bunch of cages.
-    cages = [Cage.testing_init(x, 'a', SimpleNamespace(a=1)) for x in
+    cages = [stk.Cage.testing_init(x, 'a', SimpleNamespace(a=1)) for x in
              range(0, 22)]
 
-    # Generate a couple of ``Populations`` to be used as
+    # Generate a couple of ``stk.Populations`` to be used as
     # subpopulations.
-    sub1 = Population(*cages[0:4])
-    sub2 = Population(*cages[4:9])
-    sub3 = Population(*cages[9:14])
-    sub4 = Population(*cages[14:19])
+    sub1 = stk.Population(*cages[0:4])
+    sub2 = stk.Population(*cages[4:9])
+    sub3 = stk.Population(*cages[9:14])
+    sub4 = stk.Population(*cages[14:19])
 
     # Place subpopulations in one another.
     sub1.populations.append(sub3)
     sub2.populations.append(sub4)
 
     # Initialize main population from subpopulations and cages.
-    main = Population(sub1, sub2, *cages[-3:])
+    main = stk.Population(sub1, sub2, *cages[-3:])
 
     # Place the results of ``all_members`` into a list.
-    all_members = Population(*[cage for cage in main.all_members()])
+    all_members = stk.Population(*[cage for cage in main.all_members()])
 
     # Check that each generated cage is in `all_members`. Should pass.
     assert all(cage in all_members for cage in cages)
 
     # Add a cage to `cages`. Now there should be a cage in `cages`, not
     # present in main. Should fail.
-    cages.append(Cage.testing_init('alpha', 'beta',
+    cages.append(stk.Cage.testing_init(
+                                   'alpha', 'beta',
                                    SimpleNamespace(a='gamma')))
 
     with pytest.raises(AssertionError):
@@ -402,7 +403,7 @@ def test_getitem():
     # Verify lack of subpopulations.
     assert not flat_pop.populations
     # An integer index should return a ``MacroMolecule`` instance.
-    assert isinstance(pop[5], MacroMolecule)
+    assert isinstance(pop[5], stk.MacroMolecule)
     # Non integer/slice indices are not supported
     with pytest.raises(TypeError):
         pop[5.5]
@@ -469,7 +470,7 @@ def test_contains():
     # Make a population from some cages and initialize.
     cages = [cage for cage in generate_population()]
 
-    pop = Population(*cages[:-1])
+    pop = stk.Population(*cages[:-1])
 
     # Check that a cage that should not be in it is not.
     assert cages[-1] not in pop
@@ -479,5 +480,5 @@ def test_contains():
     # Ensure that the cage is found even if it is in a subpopulation.
     subpop_cages = generate_population()
 
-    pop.add_subpopulation(Population(*subpop_cages))
+    pop.add_subpopulation(stk.Population(*subpop_cages))
     assert subpop_cages[2] in pop

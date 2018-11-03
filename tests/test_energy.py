@@ -1,12 +1,11 @@
 from os.path import join
-from ..population import Population
-from ..utilities import FunctionData
-from ..molecular import Molecule
+import stk
 import numpy as np
 
 
-pop = Population.load(join('data', 'macromolecule', 'mm.json'),
-                      Molecule.from_dict)
+pop = stk.Population.load(
+                      join('data', 'macromolecule', 'mm.json'),
+                      stk.Molecule.from_dict)
 mol, mol2 = pop[:2]
 
 
@@ -18,7 +17,7 @@ def test_rdkit():
 def test_formation():
     assert np.isclose(
             mol.energy.formation(
-                        FunctionData('rdkit', forcefield='uff'),
+                        stk.FunctionData('rdkit', forcefield='uff'),
                         [(2, mol2)]),
             0,
             atol=18.318412936376188)
@@ -27,7 +26,7 @@ def test_formation():
 def test_pseudoformation():
     assert np.isclose(
             mol.energy.pseudoformation(
-                    FunctionData('rdkit', forcefield='uff')),
+                    stk.FunctionData('rdkit', forcefield='uff')),
             0,
             atol=17.75271336716965)
 

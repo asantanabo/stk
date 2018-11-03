@@ -1,14 +1,13 @@
 import os
-
-from ..molecular import (StructUnit2, MacroMolecule, Polymer, Linear,
-                         Molecule, CACHE_SETTINGS)
+import stk
 
 if not os.path.exists('macromolecule_tests_output'):
     os.mkdir('macromolecule_tests_output')
 
-bb1 = StructUnit2.smiles_init('Nc1ccc(N)cc1', 'amine')
-bb2 = StructUnit2.smiles_init('O=Cc1cc2ccc3cc(C=O)cc4ccc(c1)c2c34', 'aldehyde')
-mol = Polymer([bb1, bb2], Linear('AB', [0.5, 0.5], 3))
+bb1 = stk.StructUnit2.smiles_init('Nc1ccc(N)cc1', 'amine')
+bb2 = stk.StructUnit2.smiles_init('O=Cc1cc2ccc3cc(C=O)cc4ccc(c1)c2c34',
+                                  'aldehyde')
+mol = stk.Polymer([bb1, bb2], stk.Linear('AB', [0.5, 0.5], 3))
 
 
 def test_building_block_cores():
@@ -34,13 +33,13 @@ def test_comparison():
 
     """
 
-    a = MacroMolecule.__new__(MacroMolecule)
+    a = stk.MacroMolecule.__new__(stk.MacroMolecule)
     a.fitness = 1
 
-    b = MacroMolecule.__new__(MacroMolecule)
+    b = stk.MacroMolecule.__new__(stk.MacroMolecule)
     b.fitness = 1
 
-    c = MacroMolecule.__new__(MacroMolecule)
+    c = stk.MacroMolecule.__new__(stk.MacroMolecule)
     c.fitness = 2
 
     # Comparison operators should compare their fitness.
@@ -52,10 +51,10 @@ def test_comparison():
 
 
 def test_caching():
-    mol2 = Polymer([bb2, bb1], Linear('AB', [0.5, 0.5], 3))
+    mol2 = stk.Polymer([bb2, bb1], stk.Linear('AB', [0.5, 0.5], 3))
     assert mol is mol2
 
-    mol3 = Polymer([bb1, bb2], Linear('AB', [1, 0.5], 3))
+    mol3 = stk.Polymer([bb1, bb2], stk.Linear('AB', [1, 0.5], 3))
     assert mol is not mol3
 
 
@@ -63,9 +62,9 @@ def test_json_init():
     try:
         path = os.path.join('macromolecule_tests_output', 'mol.json')
         mol.dump(path)
-        CACHE_SETTINGS['ON'] = False
-        mol2 = Molecule.load(path, Molecule.from_dict)
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = False
+        mol2 = stk.Molecule.load(path, stk.Molecule.from_dict)
+        stk.CACHE_SETTINGS['ON'] = True
 
         assert mol is not mol2
         assert mol.bonder_ids == mol2.bonder_ids
@@ -81,4 +80,4 @@ def test_json_init():
     except Exception:
         raise
     finally:
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = True

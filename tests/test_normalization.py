@@ -3,8 +3,8 @@ Tests for normalization functions.
 
 """
 
-from ..ga import Normalization
-from .test_population import generate_population
+import stk
+from test_population import generate_population
 
 population = generate_population()
 
@@ -13,7 +13,7 @@ def test_cage():
     for i, mem in enumerate(population):
         mem.fitness = [i, i, i, i]
 
-    Normalization.cage(None, population, 2, 3)
+    stk.Normalization.cage(None, population, 2, 3)
 
     for i, mem in enumerate(population):
         assert mem.fitness == [abs(i-2), abs(i-3), i, i]
@@ -28,7 +28,7 @@ def test_combine():
     for i, mem in enumerate(population, 1):
         mem.fitness = [i for _ in range(4)]
 
-    Normalization.combine(None, population, [1, 1, 1, 1], [1, 1, 1, 1])
+    stk.Normalization.combine(None, population, [1, 1, 1, 1], [1, 1, 1, 1])
 
     for i, mem in enumerate(population, 1):
         assert mem.fitness == i*4
@@ -39,7 +39,7 @@ def test_magnitudes():
     for mem in population:
         mem.fitness = [1, 10, 100, -100]
 
-    Normalization.magnitudes(None, population)
+    stk.Normalization.magnitudes(None, population)
 
     for mem in population:
         assert all(x == 1 for x in mem.fitness)
@@ -50,7 +50,7 @@ def test_shift_elements():
     for i, mem in enumerate(population):
         mem.fitness = [i, 10*i, -i, -1000*i]
 
-    Normalization.shift_elements(None, population, indices=[2, 3])
+    stk.Normalization.shift_elements(None, population, indices=[2, 3])
 
     for mem in population:
         assert mem.fitness[2] > 0
@@ -62,7 +62,7 @@ def test_invert():
     for i, mem in enumerate(population, 1):
         mem.fitness = i
 
-    Normalization.invert(None, population)
+    stk.Normalization.invert(None, population)
 
     for i, mem in enumerate(population, 1):
         assert mem.fitness == 1/i

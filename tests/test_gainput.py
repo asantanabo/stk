@@ -1,9 +1,7 @@
-from ..ga import GAInput
-from ..utilities import FunctionData
-from ..molecular import FourPlusSix
+import stk
 from os.path import join
 
-i = GAInput(join('data', 'gainput', 'test.py'))
+i = stk.GAInput(join('data', 'gainput', 'test.py'))
 
 
 def test_init():
@@ -13,7 +11,7 @@ def test_init():
     assert i.init_func == {'NAME': 'init_random_cages',
                            'bb_db': 'path1',
                            'lk_db': 'path2',
-                           'topologies': [FourPlusSix()]}
+                           'topologies': [stk.FourPlusSix()]}
 
     assert i.generational_select_func == {
                 'NAME': 'stochastic_sampling',
@@ -52,14 +50,14 @@ def test_init():
 
 def test_crosser():
     crosser = i.crosser()
-    assert crosser.funcs == [FunctionData('bb_lk_exchange')]
+    assert crosser.funcs == [stk.FunctionData('bb_lk_exchange')]
     assert crosser.num_crossovers == i.num_crossovers
     assert crosser.weights is None
 
 
 def test_exiter():
     exiter = i.exiter()
-    assert exiter.func_data == FunctionData('no_exit')
+    assert exiter.func_data == stk.FunctionData('no_exit')
 
 
 def test_fitnessor():
@@ -69,18 +67,22 @@ def test_fitnessor():
 
 def test_selector():
     sel = i.selector()
-    assert sel.generational == FunctionData('stochastic_sampling',
+    assert sel.generational == stk.FunctionData(
+                                            'stochastic_sampling',
                                             use_rank=True)
-    assert sel.crossover == FunctionData('crossover_roulette')
-    assert sel.mutation == FunctionData('stochastic_sampling',
+    assert sel.crossover == stk.FunctionData('crossover_roulette')
+    assert sel.mutation == stk.FunctionData(
+                                        'stochastic_sampling',
                                         duplicates=True)
 
 
 def test_mutator():
     mut = i.mutator()
-    assert mut.funcs == [FunctionData('cage_random_bb',
+    assert mut.funcs == [stk.FunctionData(
+                                      'cage_random_bb',
                                       database='path1'),
-                         FunctionData('cage_random_lk',
+                         stk.FunctionData(
+                                      'cage_random_lk',
                                       database='path2')]
     assert mut.weights is None
     assert mut.num_mutations == 2
@@ -88,9 +90,10 @@ def test_mutator():
 
 def test_normalizer():
     norm = i.normalizer()
-    assert norm.funcs == [FunctionData('shift_elements',
+    assert norm.funcs == [stk.FunctionData(
+                                       'shift_elements',
                                        indices=[-1]),
-                          FunctionData('magnitudes')]
+                          stk.FunctionData('magnitudes')]
 
 
 def test_opter():

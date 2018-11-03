@@ -1,14 +1,12 @@
 import os
 import numpy as np
 import rdkit.Chem.AllChem as rdkit
-
-from ..molecular import StructUnit, Molecule, CACHE_SETTINGS
-from ..utilities import normalize_vector
+import stk
 
 if not os.path.exists('struct_unit_tests_output'):
     os.mkdir('struct_unit_tests_output')
 
-mol = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
+mol = stk.StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
 conf = mol.mol.GetConformer()
 
 
@@ -54,7 +52,7 @@ def test_bonder_position_matrix():
 def test_centroid_centroid_dir_vector():
     c1 = mol.bonder_centroid()
     c2 = mol.centroid()
-    assert np.allclose(normalize_vector(c2-c1),
+    assert np.allclose(stk.normalize_vector(c2-c1),
                        mol.centroid_centroid_dir_vector(),
                        atol=1e-8)
 
@@ -82,9 +80,9 @@ def test_json_init():
     try:
         path = os.path.join('struct_unit_tests_output', 'mol.json')
         mol.dump(path)
-        CACHE_SETTINGS['ON'] = False
-        mol2 = Molecule.load(path, Molecule.from_dict)
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = False
+        mol2 = stk.Molecule.load(path, stk.Molecule.from_dict)
+        stk.CACHE_SETTINGS['ON'] = True
 
         assert isinstance(mol.file, str)
         assert mol2.optimized
@@ -97,20 +95,20 @@ def test_json_init():
     except Exception:
         raise
     finally:
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = True
 
 
 def test_caching():
     try:
-        mol2 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
+        mol2 = stk.StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
         assert mol is mol2
 
-        mol3 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'aldehyde')
+        mol3 = stk.StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'aldehyde')
         assert mol3 is not mol
 
-        CACHE_SETTINGS['ON'] = False
-        mol4 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = False
+        mol4 = stk.StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
+        stk.CACHE_SETTINGS['ON'] = True
 
         assert mol is not mol4
 
@@ -118,7 +116,7 @@ def test_caching():
         raise
 
     finally:
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = True
 
 
 def test_set_bonder_centroid():
@@ -128,13 +126,13 @@ def test_set_bonder_centroid():
 
 def test_untag_atoms():
     try:
-        CACHE_SETTINGS['ON'] = False
-        mol = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = False
+        mol = stk.StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
+        stk.CACHE_SETTINGS['ON'] = True
         assert any(a.HasProp('fg') for a in mol.mol.GetAtoms())
         mol.untag_atoms()
         assert all(not a.HasProp('fg') for a in mol.mol.GetAtoms())
     except Exception:
         raise
     finally:
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = True

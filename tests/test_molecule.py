@@ -3,12 +3,10 @@ from os.path import join
 import itertools as it
 import numpy as np
 from scipy.spatial.distance import euclidean
+import stk
 
 
-from ..molecular import StructUnit, Molecule, CACHE_SETTINGS
-from ..utilities import periodic_table
-
-mol = StructUnit.smiles_init('NC1CC(Br)C(Br)CC1N')
+mol = stk.StructUnit.smiles_init('NC1CC(Br)C(Br)CC1N')
 
 
 def test_all_atom_coords():
@@ -67,12 +65,12 @@ def test_atom_symbol():
 
     for atom in mol.mol.GetAtoms():
         atom_id = atom.GetIdx()
-        atom_sym = periodic_table[atom.GetAtomicNum()]
+        atom_sym = stk.periodic_table[atom.GetAtomicNum()]
         assert atom_sym == mol.atom_symbol(atom_id)
 
 
 def test_cavity_size():
-    mol = Molecule.__new__(Molecule)
+    mol = stk.Molecule.__new__(stk.Molecule)
     molfile = join('data', 'molecule', 'cc3.mol')
     mol.mol = rdkit.MolFromMolFile(molfile,
                                    removeHs=False,
@@ -130,9 +128,9 @@ def test_graph():
 def test_max_diameter():
     try:
 
-        CACHE_SETTINGS['ON'] = False
-        mol = StructUnit.smiles_init('NC1CC(Br)C(Br)CC1N')
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = False
+        mol = stk.StructUnit.smiles_init('NC1CC(Br)C(Br)CC1N')
+        stk.CACHE_SETTINGS['ON'] = True
 
         # Make a position matrix which sets all atoms to the origin except
         # 2 and 13. These should be placed a distance of 100 apart.
@@ -152,7 +150,7 @@ def test_max_diameter():
     except Exception:
         raise
     finally:
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = True
 
 
 def test_position_matrix():
@@ -182,13 +180,13 @@ def test_same():
     """
 
     try:
-        CACHE_SETTINGS['ON'] = False
-        mol2 = StructUnit.rdkit_init(mol.mol)
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = False
+        mol2 = stk.StructUnit.rdkit_init(mol.mol)
+        stk.CACHE_SETTINGS['ON'] = True
         assert mol is not mol2
         assert mol.same(mol2)
 
-        mol3 = StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
+        mol3 = stk.StructUnit.smiles_init('NC1CC(N)CC(N)C1', 'amine')
 
         assert mol is not mol3
         assert not mol.same(mol3)
@@ -197,7 +195,7 @@ def test_same():
         raise
 
     finally:
-        CACHE_SETTINGS['ON'] = True
+        stk.CACHE_SETTINGS['ON'] = True
 
 
 def test_set_position_from_matrix():
